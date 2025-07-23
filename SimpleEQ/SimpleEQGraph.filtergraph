@@ -61,11 +61,11 @@
       </OUTPUTS>
     </LAYOUT>
   </FILTER>
-  <FILTER uid="5" x="0.6125" y="0.4697580645161291" useARA="0" uiLastX_Normal="353"
-          uiLastY_Normal="233" uiopen_Normal="0">
+  <FILTER uid="5" x="0.6125" y="0.4697580645161291" useARA="0" uiLastX_Normal="192"
+          uiLastY_Normal="526" uiopen_Normal="0">
     <PLUGIN name="SimpleEQ" format="VST3" category="Fx" manufacturer="yourcompany"
             version="1.0.0" file="C:\Users\jackh\Documents\AudioProgramming\SimpleEQ\Builds\VisualStudio2022\x64\Debug\VST3\SimpleEQ.vst3\Contents\x86_64-win\SimpleEQ.vst3"
-            uniqueId="ff9ce8ee" isInstrument="0" fileTime="19833ea2474" infoUpdateTime="19833ed1e52"
+            uniqueId="ff9ce8ee" isInstrument="0" fileTime="1983873bf58" infoUpdateTime="1983874cf6b"
             numInputs="2" numOutputs="2" isShell="0" hasARAExtension="0"
             uid="e959547d"/>
     <STATE>191.VMjLgXK....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9XCLt3hKt3hKt3hKt3hYRUUSTEETIckVwTjQisVTTgkdEYjKAQjYPQSPWgUdMcjKAQjct3hdA4hKt3hKt3hKtnTUv.UQAslXuk0UXoWUFE0YQcEV77RRC8Vav8lak4Fc9vyKVMEUy.Ea0cVZtMEcgQWY9..</STATE>
@@ -82,7 +82,7 @@
           uiLastY_Normal="261" uiopen_Normal="0">
     <PLUGIN name="Audio File Player Plugin" format="VST3" category="Fx|Tools"
             manufacturer="Spyced Concepts" version="1.0.0" file="C:\Program Files\Common Files\VST3\AudioFilePlayerPlugin.vst3"
-            uniqueId="f0ace424" isInstrument="0" fileTime="1983371bd7c" infoUpdateTime="19833ed1e52"
+            uniqueId="f0ace424" isInstrument="0" fileTime="1983371bd7c" infoUpdateTime="1983874cf6b"
             numInputs="2" numOutputs="2" isShell="0" hasARAExtension="0"
             uid="e952be97"/>
     <STATE>191.VMjLgXK....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9XCLt3hKt3hKt3hKt3hYRUUSTEETIckVwTjQisVTTgkdEYjKAQjYPQSPWgUdMcjKAQjct3hdA4hKt3hKt3hKtnTUv.UQAslXuk0UXoWUFE0YQcEV77RRC8Vav8lak4Fc9vyKVMEUy.Ea0cVZtMEcgQWY9..</STATE>
