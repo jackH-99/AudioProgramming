@@ -92,13 +92,37 @@ private:
     using Coefficients = Filter::CoefficientsPtr;
     static void replaceCoefficients(Coefficients& old, Coefficients& replacements);
    
+	template<int index, typename ChainType, typename CoefficientsType>
+    void update(ChainType& chain, const CoefficientsType& coefficients) {
+        replaceCoefficients(chain.template get<index>().coefficients, coefficients[index]);
+        chain.template setBypassed<index>(false);
+    };
     template<typename ChainType, typename CoefficientsType>
     void updateCutCoefficients(ChainType& chainType, const CoefficientsType& cutCoefficients, Slope cutSlope) {
 		chainType.template setBypassed<0>(true);
 		chainType.template setBypassed<1>(true);
 		chainType.template setBypassed<2>(true);
 		chainType.template setBypassed<3>(true);
-		switch (cutSlope) {
+        switch (cutSlope) {
+        case Slope_48: {
+            update<3>(chainType, cutCoefficients);
+        }
+        case Slope_36: {
+            
+            update<2>(chainType, cutCoefficients);
+
+        }
+        case Slope_24: {
+
+            update<1>(chainType, cutCoefficients);
+        }
+        case Slope_12: {
+
+            update<0>(chainType, cutCoefficients);
+        }
+        }
+
+            /*
 		case Slope_12: {
 			*chainType.template get<0>().coefficients = *cutCoefficients[0];
 			chainType.template setBypassed<0>(false);
@@ -132,6 +156,7 @@ private:
 			break;
 		}
 		}
+        */
     };
 
     //==============================================================================
