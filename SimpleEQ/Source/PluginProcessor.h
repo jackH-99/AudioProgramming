@@ -22,6 +22,10 @@ struct ChainSettings {
     float peakFreq{ 0 }, peakGainInDecibels{ 0 }, peakQuality{ 1.f };
     float lowCutFreq{ 0 }, highCutFreq{ 0 };
     Slope lowCutSlope { Slope::Slope_12 }, highCutSlope { Slope::Slope_12 };
+
+    float delayTimeMs{ 500.0f };
+    float delayFeedback{ 0.5f };
+    float delayMix{ 0.5f };
 };
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& aptvs);
 //==============================================================================
@@ -81,6 +85,11 @@ private:
 
     MonoChain leftChain, rightChain;
 
+    
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> leftDelayLine{ 44100 * 2 };
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> rightDelayLine{ 44100 * 2 };
+
+
     enum ChainPositions {
         LowCut,
         Peak,
@@ -108,16 +117,12 @@ private:
             update<3>(chainType, cutCoefficients);
         }
         case Slope_36: {
-            
             update<2>(chainType, cutCoefficients);
-
         }
         case Slope_24: {
-
             update<1>(chainType, cutCoefficients);
         }
         case Slope_12: {
-
             update<0>(chainType, cutCoefficients);
         }
         }
@@ -129,6 +134,10 @@ private:
 
     
     void updateFilters();
+
+    void updateDelay();
+
+	void delayProcessing(juce::AudioBuffer<float>& buffer);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)

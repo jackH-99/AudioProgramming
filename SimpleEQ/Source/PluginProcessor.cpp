@@ -105,7 +105,12 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     leftChain.prepare(spec);
     rightChain.prepare(spec);
 
+    leftDelayLine.prepare(spec);
+    rightDelayLine.prepare(spec);
+
     updateFilters();
+    updateDelay();
+
 
 	// This is the place where you'd normally do the guts of your plugin's
 
@@ -162,6 +167,7 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     updateFilters();
 
+
     juce::dsp::AudioBlock<float> block(buffer);
 
     auto leftBlock = block.getSingleChannelBlock(0);
@@ -173,6 +179,7 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     leftChain.process(leftContext);
     rightChain.process(rightContext);
 
+    delayProcessing(buffer);
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
     // Make sure to reset the state if your inner loop is processing
@@ -222,6 +229,9 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& aptvs) {
     settings.peakQuality = aptvs.getRawParameterValue("Peak Quality")->load();
     settings.lowCutSlope = static_cast<Slope>(aptvs.getRawParameterValue("LowCut Slope")->load());
     settings.highCutSlope = static_cast<Slope>(aptvs.getRawParameterValue("HighCut Slope")->load());
+	settings.delayTimeMs = aptvs.getRawParameterValue("Delay Time")->load();
+	settings.delayFeedback = aptvs.getRawParameterValue("Delay Feedback")->load();
+    settings.delayMix = aptvs.getRawParameterValue("Delay Mix")->load();
     return settings;
 }
 void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings) {
@@ -264,7 +274,41 @@ void SimpleEQAudioProcessor::updateFilters() {
     updateLowCutFilters(chainSettings);
     updatePeakFilter(chainSettings);
 	updateHighCutFilters(chainSettings);
+    updateDelay();
 }
+
+void SimpleEQAudioProcessor::updateDelay() {
+    auto chainSettings = getChainSettings(aptvs);
+    double sampleRate = getSampleRate();
+    float delaySamples = static_cast<float>(chainSettings.delayTimeMs * sampleRate / 1000.0);
+	leftDelayLine.setDelay(delaySamples);
+	rightDelayLine.setDelay(delaySamples);
+
+}
+
+void SimpleEQAudioProcessor::delayProcessing(juce::AudioBuffer<float>& buffer) {
+    auto chainSettings = getChainSettings(aptvs);
+    float feedback = chainSettings.delayFeedback;
+    float mix = chainSettings.delayMix;
+
+    int numSamples = buffer.getNumSamples();
+    int numChannels = buffer.getNumChannels();
+    for (int ch = 0; ch < numChannels; ++ch) {
+        auto* chData = buffer.getWritePointer(ch);
+
+
+        auto& delayLine = (ch == 0) ? leftDelayLine : rightDelayLine;
+        for (int i = 0; i < numSamples; ++i) {
+            float inputSample = chData[i];
+            float delayedSample = delayLine.popSample(0); // each instance handles a single channel of audio (always 0 in this case)
+            float dLineInputSample = std::tanh(inputSample + feedback * delayedSample);
+            delayLine.pushSample(0, dLineInputSample);
+            auto outputSample = inputSample * (1.0f - mix) + delayedSample * mix; // mix the delayed sample with the input sample
+            chData[i] = outputSample; // write the output sample back to the buffer
+        }
+    }
+}
+
 juce::AudioProcessorValueTreeState::ParameterLayout
 SimpleEQAudioProcessor::createParameterLayout()
 {
@@ -292,6 +336,17 @@ SimpleEQAudioProcessor::createParameterLayout()
     layout.add(std::make_unique<juce::AudioParameterChoice>("LowCut Slope", "LowCut Slope", cutSlopes,0));
     layout.add(std::make_unique<juce::AudioParameterChoice>("HighCut Slope", "HighCut Slope", cutSlopes,0));
     // Slopes refer to how quickly the low and high pass filters attenuate the signal. db/Oct
+
+
+    //Delay Params:
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Delay Time", "Delay Time",
+        juce::NormalisableRange<float>(1.0f, 2000.0f, 1.0f, 0.5f), 500.0f)); //ms
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Delay Feedback", "Delay Feedback",
+        juce::NormalisableRange<float>(0.0f, 0.95f, 0.01f), 0.5f)); // 0-1
+
+	layout.add(std::make_unique<juce::AudioParameterFloat>("Delay Mix", "Delay Mix",
+		juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.3f)); // 0-1
 
 
     return layout;
