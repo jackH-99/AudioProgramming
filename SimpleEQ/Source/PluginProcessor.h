@@ -88,6 +88,52 @@ private:
 
     };
 
+    void updatePeakFilter(const ChainSettings& chainSettings);
+    using Coefficients = Filter::CoefficientsPtr;
+    static void replaceCoefficients(Coefficients& old, Coefficients& replacements);
+   
+    template<typename ChainType, typename CoefficientsType>
+    void updateCutCoefficients(ChainType& chainType, const CoefficientsType& cutCoefficients, Slope cutSlope) {
+		chainType.template setBypassed<0>(true);
+		chainType.template setBypassed<1>(true);
+		chainType.template setBypassed<2>(true);
+		chainType.template setBypassed<3>(true);
+		switch (cutSlope) {
+		case Slope_12: {
+			*chainType.template get<0>().coefficients = *cutCoefficients[0];
+			chainType.template setBypassed<0>(false);
+			break;
+		}
+		case Slope_24: {
+			*chainType.template get<0>().coefficients = *cutCoefficients[0];
+			chainType.template setBypassed<0>(false);
+			*chainType.template get<1>().coefficients = *cutCoefficients[1];
+			chainType.template setBypassed<1>(false);
+			break;
+		}
+		case Slope_36: {
+			*chainType.template get<0>().coefficients = *cutCoefficients[0];
+			chainType.template setBypassed<0>(false);
+			*chainType.template get<1>().coefficients = *cutCoefficients[1];
+		    chainType.template setBypassed<1>(false);
+			*chainType.template get<2>().coefficients = *cutCoefficients[2];
+			chainType.template setBypassed<2>(false);
+			break;
+		}
+		case Slope_48: {
+			*chainType.template get<0>().coefficients = *cutCoefficients[0];
+		    chainType.template setBypassed<0>(false);
+			*chainType.template get<1>().coefficients = *cutCoefficients[1];
+			chainType.template setBypassed<1>(false);
+			*chainType.template get<2>().coefficients = *cutCoefficients[2];
+			chainType.template setBypassed<2>(false);
+			*chainType.template get<3>().coefficients = *cutCoefficients[3];
+			chainType.template setBypassed<3>(false);
+			break;
+		}
+		}
+    };
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
